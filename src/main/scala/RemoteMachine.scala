@@ -392,6 +392,35 @@ class RemoteMachine(host: String="localhost", username: String="root",
     }// end-match on result from executeCommand
   }
 
+  def dirExists(dir: File): Boolean = {
+    executeCommand("stat %s".format(dir)) match {
+      case ExecutionResponse(Some(0), data, "") => {
+        val parts: Array[String] = data.split("\n")
+        // The second line for stat has the info we need
+        val fileType = parts(1).split(" ").last
+        //println("Type line: " + fileType)
+        if (fileType.equalsIgnoreCase("directory")) {
+          //println("directory exists")
+          true
+        } else {
+          //println("directory does not exist")
+          false
+        }
+      }
+      case res:ExecutionResponse => {
+        //logger.error("Unable to stat file: %s. Reason: %s"
+        //  .format(file, res))
+        //println("directory does not exist***")
+        false
+      }
+    }
+
+  }
+
+  def isDir(file: File): Boolean = {
+    false
+  }
+
   def mkdir(dir: File, useSudo: Boolean = false):Boolean = {
     val mkdirCmd: StringBuffer = new StringBuffer
     if (useSudo) {

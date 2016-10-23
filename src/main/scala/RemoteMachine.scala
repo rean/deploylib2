@@ -417,9 +417,9 @@ class RemoteMachine(host: String="localhost", username: String="root",
 
   }
 
-  def isDir(file: File): Boolean = {
-    false
-  }
+  //def isDir(file: File): Boolean = {
+  //  false
+  //}
 
   def mkdir(dir: File, useSudo: Boolean = false):Boolean = {
     val mkdirCmd: StringBuffer = new StringBuffer
@@ -482,6 +482,17 @@ class RemoteMachine(host: String="localhost", username: String="root",
         ""
       }
     }
+  }
+
+  def echoStringToFile(contents: String, remoteFile: File): Boolean = {
+     executeCommand("echo \'%s\' > %s".format(contents, remoteFile)) match {
+      case ExecutionResponse(Some(0), data, "") => true
+      case res:ExecutionResponse => {
+        logger.error("Unable to echo string to file: %s. Reason: %s"
+          .format(remoteFile, res))
+        false
+      }
+     }
   }
 
   def sha256sum(remoteFile: File, timeout:Long = 20): String = {

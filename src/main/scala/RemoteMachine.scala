@@ -473,6 +473,24 @@ class RemoteMachine(host: String="localhost", username: String="root",
     }
   }
 
+  def rmFile(file: File, useSudo: Boolean = false): Boolean = {
+    val rmFileCmd: StringBuffer = new StringBuffer
+    if (useSudo) {
+      rmFileCmd.append("sudo ")
+    }
+    rmFileCmd.append("rm -f %s".format(file))
+
+    val retVal = executeCommand(rmFileCmd.toString) match {
+      case ExecutionResponse(Some(0), _, _) => true
+      case res: ExecutionResponse => {
+        logger.error("Error creating removing file: %s. Reason: %s"
+          .format(file, res))
+        false
+      }
+    }
+    retVal
+  }
+
   def cat(remoteFile: File): String = {
     executeCommand("cat %s".format(remoteFile)) match {
       case ExecutionResponse(Some(0), data, "") => data
